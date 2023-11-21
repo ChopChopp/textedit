@@ -11,7 +11,7 @@ public class TextEditor {
         textEditor.run();
     }
 
-    protected void run() {
+    public void run() {
         logger.log( Level.INFO, "Initializing objects..." );
 
         controller = new Controller();

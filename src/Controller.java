@@ -1,5 +1,3 @@
-import static java.lang.String.valueOf;
-
 /**
  * This application provides a text editor to write a document stored in memory.
  * Controller initiates the application and handles propagation of commands.
@@ -8,6 +6,7 @@ import static java.lang.String.valueOf;
 public class Controller {
     private Document document;
     private final UserInterface userInterface;
+    private Command command;
 
     public Controller() {
         document = new Document();
@@ -19,22 +18,22 @@ public class Controller {
         userInterface.prompt();
         while (true) {
             String userInput = userInterface.getCommand();
-            Command command = getCommand( userInput );
-            Integer index = getIndex( userInput );
+            command = getCommand(userInput);
+            Integer index = getIndex(userInput);
             if (command == null || index == null) continue;
 
-            System.out.println( "Command: " + command );
-            System.out.println( "Index: " + index );
+            System.out.println("Command: " + command);
+            System.out.println("Index: " + index);
 
             switch (command) {
                 case EXIT:
-                    System.exit( 0 );
+                    System.exit(0);
                     break;
                 case ADD:
                     add(index);
                     break;
                 case DEL:
-                    delete();
+                    delete(index);
                     break;
                 case FORMAT_FIX:
                     formatFix();
@@ -49,7 +48,7 @@ public class Controller {
                     print();
                     break;
                 case REPLACE:
-                    System.out.println( "Enter search text:" );
+                    System.out.println("Enter search text:");
                     break;
                 case DUMMY:
                     dummy();
@@ -64,26 +63,40 @@ public class Controller {
         }
     }
 
-    private Integer getIndex(String userInput) {
-
-        Integer index = Command.parseIndex( userInput );
-        if (index == null) {
-            userInterface.invalidIndex();
-            return null;
-        }
-
-        return index;
-    }
-
     private Command getCommand(String userInput) {
-        Command command = Command.parseCommand( userInput );
-
-        if (command == null) {
+        String[] parts = userInput.split("\\s+");
+        try {
+            return Command.valueOf(parts[0]);
+        } catch (IllegalArgumentException e) {
             userInterface.invalidCommand();
             return null;
         }
+    }
 
-        return command;
+    /*
+     * Get the index from the command string
+     * Returns -1 if no index is provided by user
+     * Returns null if the index is not numeric
+     * @param commandString The command string
+     */
+    private Integer getIndex(String userInput) {
+        String[] parts = userInput.split("\\s+");
+
+        if (parts.length == 1) {
+            return -1;
+        } else if (parts.length == 2 && isNumeric(parts[1])) {
+            return Integer.parseInt(parts[1]);
+        }
+        userInterface.invalidIndex();
+        return null;
+    }
+
+    /*
+     * Check if the string is numeric via regex
+     * @param str The string to check
+     */
+    private boolean isNumeric(String str) {
+        return str.matches("\\d+");
     }
 
     private void dummy() {
@@ -91,7 +104,7 @@ public class Controller {
 
     public void add(int index) {
         userInterface.promptAdd();
-        document.add( userInterface.getInput(), index );
+        document.addParagraph(userInterface.getInput(), index);
     }
 
 
@@ -101,7 +114,7 @@ public class Controller {
             return;
         }
 
-        document.delete( userInterface.getInput(), index );
+        document.deleteParagraph(index);
     }
 
     public void formatFix() {
