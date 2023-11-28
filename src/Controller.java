@@ -18,22 +18,21 @@ public class Controller {
         userInterface.prompt();
         while (true) {
             String userInput = userInterface.getCommand();
-            command = getCommand(userInput);
-            Integer index = getIndex(userInput);
-            if (command == null || index == null) continue;
+            command = getCommand( userInput );
+            Integer index = getIndex( userInput );
 
-            System.out.println("Command: " + command);
-            System.out.println("Index: " + index);
+//            System.err.println( "Command + parameter: " + command + " " + index );
+            if (command == null || index == null) continue;
 
             switch (command) {
                 case EXIT:
-                    System.exit(0);
+                    System.exit( 0 );
                     break;
                 case ADD:
-                    add(index);
+                    add( index );
                     break;
                 case DEL:
-                    delete(index);
+                    delete( index );
                     break;
                 case FORMAT_FIX:
                     formatFix();
@@ -48,7 +47,7 @@ public class Controller {
                     print();
                     break;
                 case REPLACE:
-                    System.out.println("Enter search text:");
+                    System.out.println( "Enter search text:" );
                     break;
                 case DUMMY:
                     dummy();
@@ -64,9 +63,9 @@ public class Controller {
     }
 
     private Command getCommand(String userInput) {
-        String[] parts = userInput.split("\\s+");
+        String[] parts = userInput.split( "\\s+" );
         try {
-            return Command.valueOf(parts[0]);
+            return Command.valueOf( parts[0] );
         } catch (IllegalArgumentException e) {
             userInterface.invalidCommand();
             return null;
@@ -80,31 +79,35 @@ public class Controller {
      * @param commandString The command string
      */
     private Integer getIndex(String userInput) {
-        String[] parts = userInput.split("\\s+");
+        String[] parts = userInput.split( "\\s+" );
 
         if (parts.length == 1) {
             return -1;
-        } else if (parts.length == 2 && isNumeric(parts[1])) {
-            return Integer.parseInt(parts[1]);
+        } else if (parts.length == 2 && isNumeric( parts[1] )) {
+            return Integer.parseInt( parts[1] );
         }
-        userInterface.invalidIndex();
+        userInterface.invalidCommandIndex();
         return null;
     }
 
     /*
-     * Check if the string is numeric via regex
+     * Check if the string is numeric[0-9] via regex
      * @param str The string to check
      */
     private boolean isNumeric(String str) {
-        return str.matches("\\d+");
+        return str.matches( "\\d+" );
     }
 
     private void dummy() {
     }
 
     public void add(int index) {
+        if (index > document.getParagraphs().size() ) {
+            userInterface.invalidDocumentIndex();
+            return;
+        }
         userInterface.promptAdd();
-        document.addParagraph(userInterface.getInput(), index);
+        document.addParagraph( userInterface.getInput(), index );
     }
 
 
@@ -114,7 +117,7 @@ public class Controller {
             return;
         }
 
-        document.deleteParagraph(index);
+        document.deleteParagraph( index );
     }
 
     public void formatFix() {
@@ -130,7 +133,11 @@ public class Controller {
     }
 
     public void print() {
-
+        if (document.isEmpty()) {
+            userInterface.documentEmpty();
+            return;
+        }
+        userInterface.printDocument(document.getParagraphs());
     }
 
     public void replace(String searchText, String targetText, int... index) {

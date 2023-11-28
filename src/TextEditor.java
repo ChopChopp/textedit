@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 public class TextEditor {
 
     private Controller controller;
-    private final Logger logger = Logger.getLogger( TextEditor.class.getName() );;
+    final static Logger logger = Logger.getLogger( TextEditor.class.getName() );
 
     public static void main(String[] args) {
         TextEditor textEditor = new TextEditor();

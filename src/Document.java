@@ -8,22 +8,23 @@ import java.util.HashMap;
 
 public class Document {
     private ArrayList<Paragraph> paragraphs = new ArrayList<>();
+
     private Formatter formatter = new Formatter();
     private final String DUMMY = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
 
     public void addParagraph(String text, int index) {
-        if (index != -1) {
-            paragraphs.add(new Paragraph(text));
+        if (index == -1) {
+            paragraphs.add( new Paragraph( text ) );
         } else {
-            paragraphs.add(index, new Paragraph(text));
+            paragraphs.add( index, new Paragraph( text ) );
         }
     }
 
     public void deleteParagraph(int index) {
         if (index == -1)
-            paragraphs.remove(paragraphs.size() - 1);
+            paragraphs.remove( paragraphs.size() - 1 );
         else
-            paragraphs.remove(index);
+            paragraphs.remove( index );
     }
 
     public boolean isEmpty() {
@@ -45,11 +46,11 @@ public class Document {
         return null;
     }
 
-    public void printDocument() {
+    public void replace(String searchText, String targetText, int index) {
 
     }
 
-    public void replace(String searchText, String targetText, int index) {
-
+    public ArrayList<Paragraph> getParagraphs() {
+        return paragraphs;
     }
 }

@@ -3,6 +3,7 @@
  *
  */
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class UserInterface {
@@ -13,7 +14,7 @@ public class UserInterface {
     }
 
     public String getCommand() {
-        System.out.print("> ");
+        System.out.print("\n> ");
         return reader.nextLine().toUpperCase();
     }
 
@@ -39,14 +40,25 @@ public class UserInterface {
     }
 
     public void documentEmpty() {
-        System.err.println( "Document is empty. Nothing to delete." );
+        System.err.println( "Document is empty." );
     }
 
     public void invalidCommand() {
         System.err.println( "Invalid command." );
     }
 
-    public void invalidIndex() {
-        System.err.println( "Invalid index." );
+    public void invalidCommandIndex() {
+        System.err.println( "Invalid command index." );
+    }
+
+    public void invalidDocumentIndex() {
+        System.err.println( "Invalid document index. Index does not exist." );
+    }
+
+    public void printDocument(ArrayList<Paragraph> paragraphs) {
+        for (int i = 0; i < paragraphs.size(); i++) {
+            Paragraph paragraph = paragraphs.get(i);
+            System.out.println("<" + i + ">: " + paragraph.getText());
+        }
     }
 }
