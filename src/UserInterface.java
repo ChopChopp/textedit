@@ -58,7 +58,7 @@ public class UserInterface {
     public void printDocument(ArrayList<Paragraph> paragraphs) {
         for (int i = 0; i < paragraphs.size(); i++) {
             Paragraph paragraph = paragraphs.get(i);
-            System.out.println("<" + i + ">: " + paragraph.getText());
+            System.out.println("<" + (i + 1) + ">: " + paragraph.getText());
         }
     }
 }
