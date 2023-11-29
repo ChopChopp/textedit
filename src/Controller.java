@@ -95,7 +95,7 @@ public class Controller {
      * @param str The string to check
      */
     private boolean isNumeric(String str) {
-        return str.matches( "\\d+" );
+        return !str.equals("0") && str.matches("\\d+");
     }
 
     private void dummy() {
