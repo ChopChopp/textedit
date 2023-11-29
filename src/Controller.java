@@ -79,22 +79,28 @@ public class Controller {
     }
 
     public void add(int index) {
-        if (index > document.getParagraphs().size() ) {
+        if (index > document.getParagraphs().size() + 1) {
             userInterface.invalidDocumentIndex();
             return;
         }
         userInterface.promptAdd();
-        document.addParagraph( userInterface.getInput(), index );
+        if (index > 0) {
+            document.addParagraph(userInterface.getInput(), index - 1);
+        } else {
+            document.addParagraph(userInterface.getInput(), index);
+        }
     }
-
 
     public void delete(int index) {
         if (document.isEmpty()) {
             userInterface.documentEmpty();
             return;
         }
-
-        document.deleteParagraph( index );
+        if (index > 0) {
+            document.deleteParagraph(index - 1);
+        } else {
+            document.deleteParagraph(index);
+        }
     }
 
     public void formatFix() {
