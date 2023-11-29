@@ -2,7 +2,7 @@
  * This class manages the paragraph object.
  */
 public class Paragraph {
-    private final String text;
+    private String text;
 
     public Paragraph(String text) {
         this.text = text;
@@ -10,6 +10,10 @@ public class Paragraph {
 
     public String getText() {
         return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 
 }

@@ -31,8 +31,8 @@ public class Controller {
                 case FORMAT_RAW -> formatRaw();
                 case INDEX -> index();
                 case PRINT -> print();
-                case REPLACE -> System.out.println("Enter search text:");
-                case DUMMY -> dummy();
+                case REPLACE -> replace(index);
+                case DUMMY -> dummy(index);
                 case HELP -> userInterface.prompt();
                 default -> userInterface.invalidCommand();
             }
@@ -40,9 +40,9 @@ public class Controller {
     }
 
     private Command getCommand(String userInput) {
-        String[] parts = userInput.split( "\\s+" );
+        String[] parts = userInput.split("\\s+");
         try {
-            return Command.valueOf( parts[0] );
+            return Command.valueOf(parts[0]);
         } catch (IllegalArgumentException e) {
             userInterface.invalidCommand();
             return null;
@@ -56,50 +56,77 @@ public class Controller {
      * @param commandString The command string
      */
     private Integer getIndex(String userInput) {
-        String[] parts = userInput.split( "\\s+" );
+        String[] parts = userInput.split("\\s+");
 
         if (parts.length == 1) {
             return -1;
-        } else if (parts.length == 2 && isNumeric( parts[1] )) {
-            return Integer.parseInt( parts[1] );
+        } else if (parts.length == 2 && isNumeric(parts[1])) {
+            return Integer.parseInt(parts[1]);
         }
         userInterface.invalidCommandIndex();
         return null;
     }
 
     /*
-     * Check if the string is numeric[0-9] via regex
+     * Check if the string is numeric[0-9] via regex and disclose 0, as array needs to start at 1
      * @param str The string to check
      */
     private boolean isNumeric(String str) {
         return !str.equals("0") && str.matches("\\d+");
     }
 
-    private void dummy() {
-    }
-
     public void add(int index) {
-        if (index > document.getParagraphs().size() + 1) {
+        if (index > document.getParagraphs().size()) {
             userInterface.invalidDocumentIndex();
             return;
         }
         userInterface.promptAdd();
-        if (index > 0) {
-            document.addParagraph(userInterface.getInput(), index - 1);
-        } else {
-            document.addParagraph(userInterface.getInput(), index);
-        }
+        document.addParagraph(userInterface.getInput(), index - 1);
     }
 
     public void delete(int index) {
-        if (document.isEmpty()) {
+        if (document.getParagraphs().isEmpty())
+            userInterface.documentEmpty();
+        else if (index > document.getParagraphs().size())
+            userInterface.invalidDocumentIndex();
+        else
+            document.deleteParagraph(index - 1);
+    }
+
+    private void dummy(int index) {
+        if (index > document.getParagraphs().size()) {
+            userInterface.invalidDocumentIndex();
+            return;
+        }
+        document.addDummy(index - 1);
+    }
+
+    public void print() {
+        if (document.getParagraphs().isEmpty()) {
             userInterface.documentEmpty();
             return;
         }
-        if (index > 0) {
-            document.deleteParagraph(index - 1);
-        } else {
-            document.deleteParagraph(index);
+        userInterface.printDocument(document.getParagraphs());
+    }
+
+    public void replace(int index) {
+        if (document.getParagraphs().isEmpty())
+            userInterface.documentEmpty();
+        else if (index > document.getParagraphs().size())
+            userInterface.invalidDocumentIndex();
+        else {
+            userInterface.promptSearchText();
+            String searchText = userInterface.getInput();
+
+            if (!document.hasSearchText(searchText, index -1)) {
+                userInterface.invalidSearchText();
+                return;
+            }
+
+            userInterface.promptReplaceText();
+            String replaceText = userInterface.getInput();
+
+            document.replace(searchText, replaceText, index -1);
         }
     }
 
@@ -114,17 +141,4 @@ public class Controller {
     public void index() {
 
     }
-
-    public void print() {
-        if (document.isEmpty()) {
-            userInterface.documentEmpty();
-            return;
-        }
-        userInterface.printDocument(document.getParagraphs());
-    }
-
-    public void replace(String searchText, String targetText, int... index) {
-
-    }
-
 }
