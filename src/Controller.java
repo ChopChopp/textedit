@@ -13,51 +13,28 @@ public class Controller {
         userInterface = new UserInterface();
     }
 
-    public void init() {
+    public void init() { //CHANGED: switch statement to switch enhanced statement
         userInterface.welcome();
         userInterface.prompt();
         while (true) {
             String userInput = userInterface.getCommand();
-            command = getCommand( userInput );
-            Integer index = getIndex( userInput );
+            command = getCommand(userInput);
+            Integer index = getIndex(userInput);
 
-//            System.err.println( "Command + parameter: " + command + " " + index );
             if (command == null || index == null) continue;
 
             switch (command) {
-                case EXIT:
-                    System.exit( 0 );
-                    break;
-                case ADD:
-                    add( index );
-                    break;
-                case DEL:
-                    delete( index );
-                    break;
-                case FORMAT_FIX:
-                    formatFix();
-                    break;
-                case FORMAT_RAW:
-                    formatRaw();
-                    break;
-                case INDEX:
-                    index();
-                    break;
-                case PRINT:
-                    print();
-                    break;
-                case REPLACE:
-                    System.out.println( "Enter search text:" );
-                    break;
-                case DUMMY:
-                    dummy();
-                    break;
-                case HELP:
-                    userInterface.prompt();
-                    break;
-                default:
-                    userInterface.invalidCommand();
-                    break;
+                case EXIT -> System.exit(0);
+                case ADD -> add(index);
+                case DEL -> delete(index);
+                case FORMAT_FIX -> formatFix();
+                case FORMAT_RAW -> formatRaw();
+                case INDEX -> index();
+                case PRINT -> print();
+                case REPLACE -> System.out.println("Enter search text:");
+                case DUMMY -> dummy();
+                case HELP -> userInterface.prompt();
+                default -> userInterface.invalidCommand();
             }
         }
     }
