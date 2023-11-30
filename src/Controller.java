@@ -139,6 +139,42 @@ public class Controller {
     }
 
     public void index() {
+        HashMap<String, HashSet<Integer>> index = generateIndex();
+        document.printIndex(index);
+    }
 
+    public HashMap<String, HashSet<Integer>> generateIndex() {
+        HashMap<String, HashSet<Integer>> index = new HashMap<>();
+        HashMap<String, Integer> wordCount = countWords();
+        ArrayList<Paragraph> paragraphs = document.getParagraphs();
+        for (int i = 0; i < paragraphs.size(); i++) {
+            String[] words = paragraphs.get(i).getText().split("\\s+");
+            for (String word : words) {
+                if (Character.isUpperCase(word.charAt(0)) && wordCount.get(word) > 3) {
+                    index.putIfAbsent(word, new HashSet<>());
+                    index.get(word).add(i + 1);
+                }
+            }
+        }
+        return index;
+    }
+
+    /*
+     *  Hilfsfunktion, die die Häufigkeit jedes Wortes in den Absätzen zählt, und
+     *  diese Funktion dann in der generateIndex-Methode verwenden, um zu überprüfen,
+     *  ob ein Wort mehr als dreimal vorkommt, bevor es zum Index hinzugefügt wird
+     */
+    private HashMap<String, Integer> countWords() {
+        HashMap<String, Integer> wordCount = new HashMap<>();
+        ArrayList<Paragraph> paragraphs = document.getParagraphs();
+        for (Paragraph paragraph : paragraphs) {
+            String[] words = paragraph.getText().split("\\s+");
+            for (String word : words) {
+                if (Character.isUpperCase(word.charAt(0))) {
+                    wordCount.put(word, wordCount.getOrDefault(word, 0) + 1);
+                }
+            }
+        }
+        return wordCount;
     }
 }
