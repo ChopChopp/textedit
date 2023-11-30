@@ -69,4 +69,12 @@ public class Document {
     public ArrayList<Paragraph> getParagraphs() {
         return paragraphs;
     }
+
+    public void printIndex(HashMap<String, HashSet<Integer>> index) {
+        for (Map.Entry<String, HashSet<Integer>> entry : index.entrySet()) {
+            if (entry.getValue().size() > 3) {
+                System.out.println(entry.getKey() + ": " + entry.getValue().toString().replaceAll("[\\[\\]]", ""));
+            }
+        }
+    }
 }
