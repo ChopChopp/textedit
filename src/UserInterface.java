@@ -68,26 +68,25 @@ public class UserInterface {
             int currentLineLength = 0;
 
             for (String word : line) {
-                // Überprüfe, ob das Wort in die aktuelle Zeile passt.
-                // Wenn nein, dann füge einen Zeilenumbruch hinzu.
+                // Check if word fits into current line. If not add a line break.
                 if (currentLineLength + word.length() > columnWidth) {
                     System.out.println(); // Zeilenumbruch
                     currentLineLength = 0; // Zurücksetzen der Länge für die neue Zeile
                 }
 
-                // Das Wort wird zur aktuellen Zeile hinzugefügt.
+                // Adding word to current line.
                 System.out.print(word);
                 currentLineLength += word.length();
 
-                // Füge ein Leerzeichen hinzu, wenn nach dem Hinzufügen des Worts noch Platz ist,
-                // und wenn es nicht das letzte Wort in der Zeile ist.
+                // Add whitespace if there is space left after adding the word,
+                // and if it is not the last word in the line.
                 if (currentLineLength < columnWidth) {
                     System.out.print(" ");
-                    currentLineLength++; // Inkludiere das Leerzeichen in die Längenberechnung
+                    currentLineLength++; // Add whitespace to line length calculation.
                 }
             }
 
-            // Füge nach jedem Absatz einen Zeilenumbruch hinzu.
+            // Add line break after each paragraph.
             System.out.println();
         }
 
