@@ -48,18 +48,49 @@ public class UserInterface {
     }
 
     public void invalidCommandIndex() {
-        System.err.println("Invalid command index. Index must be > 0.");
+        System.err.println("Invalid command index.");
     }
 
     public void invalidDocumentIndex() {
         System.err.println("Invalid document index. Index does not exist.");
     }
 
-    public void printDocument(ArrayList<Paragraph> paragraphs) {
+    public void printDocumentRaw(ArrayList<Paragraph> paragraphs) {
         for (int i = 0; i < paragraphs.size(); i++) {
-            Paragraph paragraph = paragraphs.get(i);
-            System.out.println("<" + (i + 1) + ">: " + paragraph.getText());
+            System.out.println("<" + (i + 1) + ">: " + paragraphs.get(i).getText());
         }
+    }
+
+    public void printDocumentFix(ArrayList<Paragraph> paragraphs, int columnWidth) {
+        for (Paragraph paragraph : paragraphs) {
+            String text = paragraph.getText();
+            String[] line = text.split("\\s+");
+            int currentLineLength = 0;
+
+            for (String word : line) {
+                // Überprüfe, ob das Wort in die aktuelle Zeile passt.
+                // Wenn nein, dann füge einen Zeilenumbruch hinzu.
+                if (currentLineLength + word.length() > columnWidth) {
+                    System.out.println(); // Zeilenumbruch
+                    currentLineLength = 0; // Zurücksetzen der Länge für die neue Zeile
+                }
+
+                // Das Wort wird zur aktuellen Zeile hinzugefügt.
+                System.out.print(word);
+                currentLineLength += word.length();
+
+                // Füge ein Leerzeichen hinzu, wenn nach dem Hinzufügen des Worts noch Platz ist,
+                // und wenn es nicht das letzte Wort in der Zeile ist.
+                if (currentLineLength < columnWidth) {
+                    System.out.print(" ");
+                    currentLineLength++; // Inkludiere das Leerzeichen in die Längenberechnung
+                }
+            }
+
+            // Füge nach jedem Absatz einen Zeilenumbruch hinzu.
+            System.out.println();
+        }
+
     }
 
     public void promptSearchText() {
@@ -73,4 +104,6 @@ public class UserInterface {
     public void invalidSearchText() {
         System.err.println("Search text not found in target paragraph.");
     }
+
+
 }

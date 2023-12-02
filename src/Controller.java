@@ -4,21 +4,20 @@
  */
 
 public class Controller {
-    private Document document;
+    private final Document document;
     private final UserInterface userInterface;
-    private Command command;
 
     public Controller() {
         document = new Document();
         userInterface = new UserInterface();
     }
 
-    public void init() { //CHANGED: switch statement to switch enhanced statement
+    public void init() {
         userInterface.welcome();
         userInterface.prompt();
         while (true) {
             String userInput = userInterface.getCommand();
-            command = getCommand(userInput);
+            Command command = getCommand(userInput);
             Integer index = getIndex(userInput);
 
             if (command == null || index == null) continue;
@@ -27,7 +26,7 @@ public class Controller {
                 case EXIT -> System.exit(0);
                 case ADD -> add(index);
                 case DEL -> delete(index);
-                case FORMAT_FIX -> formatFix();
+                case FORMAT_FIX -> formatFix(index);
                 case FORMAT_RAW -> formatRaw();
                 case INDEX -> index();
                 case PRINT -> print();
@@ -41,8 +40,16 @@ public class Controller {
 
     private Command getCommand(String userInput) {
         String[] parts = userInput.split("\\s+");
+        String commandString;
+
+        if (parts.length > 1 && !isNumeric(parts[1])) {
+            commandString = parts[0] + "_" + parts[1];
+        } else {
+            commandString = parts[0];
+        }
+
         try {
-            return Command.valueOf(parts[0]);
+            return Command.valueOf(commandString.toUpperCase());
         } catch (IllegalArgumentException e) {
             userInterface.invalidCommand();
             return null;
@@ -60,11 +67,17 @@ public class Controller {
 
         if (parts.length == 1) {
             return -1;
-        } else if (parts.length == 2 && isNumeric(parts[1])) {
-            return Integer.parseInt(parts[1]);
+
+        } else if (parts.length == 2) {
+            if (isNumeric(parts[1])) return Integer.parseInt(parts[1]);
+            else return -1;
+        } else if (parts.length > 2 && isNumeric(parts[parts.length - 1])) {
+            return Integer.parseInt(parts[parts.length - 1]);
+        } else {
+            userInterface.invalidCommandIndex();
+            return null;
         }
-        userInterface.invalidCommandIndex();
-        return null;
+
     }
 
     /*
@@ -101,12 +114,18 @@ public class Controller {
         document.addDummy(index - 1);
     }
 
-    public void print() {
+    private void print() {
         if (document.getParagraphs().isEmpty()) {
             userInterface.documentEmpty();
             return;
         }
-        userInterface.printDocument(document.getParagraphs());
+        if (document.getFormat() == Format.FIX) {
+            TextEditor.logger.info("Printing document in fixed format");
+            userInterface.printDocumentFix(document.getParagraphs(), document.getFixColumnWidth());
+        } else if (document.getFormat() == Format.RAW) {
+            TextEditor.logger.info("Printing document in raw format");
+            userInterface.printDocumentRaw(document.getParagraphs());
+        }
     }
 
     public void replace(int index) {
@@ -118,7 +137,7 @@ public class Controller {
             userInterface.promptSearchText();
             String searchText = userInterface.getInput();
 
-            if (!document.hasSearchText(searchText, index -1)) {
+            if (!document.hasSearchText(searchText, index - 1)) {
                 userInterface.invalidSearchText();
                 return;
             }
@@ -126,55 +145,63 @@ public class Controller {
             userInterface.promptReplaceText();
             String replaceText = userInterface.getInput();
 
-            document.replace(searchText, replaceText, index -1);
+            document.replace(searchText, replaceText, index - 1);
         }
     }
 
-    public void formatFix() {
-
+    public void formatFix(int columnWidth) {
+        if (columnWidth < 1) {
+            userInterface.invalidCommandIndex();
+            return;
+        }
+        document.setFormatFix(columnWidth);
     }
 
     public void formatRaw() {
-
+        document.setFormatRaw();
     }
 
     public void index() {
-        HashMap<String, HashSet<Integer>> index = generateIndex();
-        document.printIndex(index);
+
     }
 
-    public HashMap<String, HashSet<Integer>> generateIndex() {
-        HashMap<String, HashSet<Integer>> index = new HashMap<>();
-        HashMap<String, Integer> wordCount = countWords();
-        ArrayList<Paragraph> paragraphs = document.getParagraphs();
-        for (int i = 0; i < paragraphs.size(); i++) {
-            String[] words = paragraphs.get(i).getText().split("\\s+");
-            for (String word : words) {
-                if (Character.isUpperCase(word.charAt(0)) && wordCount.get(word) > 3) {
-                    index.putIfAbsent(word, new HashSet<>());
-                    index.get(word).add(i + 1);
-                }
-            }
-        }
-        return index;
-    }
+//    public void index() {
+//        HashMap<String, HashSet<Integer>> index = generateIndex();
+//        document.printIndex(index);
+//    }
+//
+//    public HashMap<String, HashSet<Integer>> generateIndex() {
+//        HashMap<String, HashSet<Integer>> index = new HashMap<>();
+//        HashMap<String, Integer> wordCount = countWords();
+//        ArrayList<Paragraph> paragraphs = document.getParagraphs();
+//        for (int i = 0; i < paragraphs.size(); i++) {
+//            String[] words = paragraphs.get(i).getText().split("\\s+");
+//            for (String word : words) {
+//                if (Character.isUpperCase(word.charAt(0)) && wordCount.get(word) > 3) {
+//                    index.putIfAbsent(word, new HashSet<>());
+//                    index.get(word).add(i + 1);
+//                }
+//            }
+//        }
+//        return index;
+//    }
 
     /*
      *  Hilfsfunktion, die die Häufigkeit jedes Wortes in den Absätzen zählt, und
      *  diese Funktion dann in der generateIndex-Methode verwenden, um zu überprüfen,
      *  ob ein Wort mehr als dreimal vorkommt, bevor es zum Index hinzugefügt wird
      */
-    private HashMap<String, Integer> countWords() {
-        HashMap<String, Integer> wordCount = new HashMap<>();
-        ArrayList<Paragraph> paragraphs = document.getParagraphs();
-        for (Paragraph paragraph : paragraphs) {
-            String[] words = paragraph.getText().split("\\s+");
-            for (String word : words) {
-                if (Character.isUpperCase(word.charAt(0))) {
-                    wordCount.put(word, wordCount.getOrDefault(word, 0) + 1);
-                }
-            }
-        }
-        return wordCount;
-    }
+//    private HashMap<String, Integer> countWords() {
+//        HashMap<String, Integer> wordCount = new HashMap<>();
+//        ArrayList<Paragraph> paragraphs = document.getParagraphs();
+//        for (Paragraph paragraph : paragraphs) {
+//            String[] words = paragraph.getText().split("\\s+");
+//            for (String word : words) {
+//                if (Character.isUpperCase(word.charAt(0))) {
+//                    wordCount.put(word, wordCount.getOrDefault(word, 0) + 1);
+//                }
+//            }
+//        }
+//        return wordCount;
+//    }
 }

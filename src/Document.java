@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Document holds the state of text the user writes.
@@ -7,9 +6,8 @@ import java.util.HashMap;
  */
 
 public class Document {
-    private ArrayList<Paragraph> paragraphs = new ArrayList<>();
-
-    private Formatter formatter = new Formatter();
+    private final ArrayList<Paragraph> paragraphs = new ArrayList<>();
+    private final Formatter formatter = new Formatter();
     private final String DUMMY = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
 
     public void addParagraph(String text, int index) {
@@ -31,16 +29,17 @@ public class Document {
     }
 
     public void setFormatFix(int columnWidth) {
-
+        formatter.setFormat(Format.FIX);
+        formatter.setFixColumnWidth(columnWidth);
     }
 
     public void setFormatRaw() {
-
+        formatter.setFormat(Format.RAW);
     }
 
-    public HashMap<Paragraph, int[]> getIndex() {
-        return null;
-    }
+//    public HashMap<Paragraph, int[]> getIndex() {
+//        return null;
+//    }
 
     public void replace(String searchText, String targetText, int index) {
         Paragraph paragraph;
@@ -70,11 +69,19 @@ public class Document {
         return paragraphs;
     }
 
-    public void printIndex(HashMap<String, HashSet<Integer>> index) {
-        for (Map.Entry<String, HashSet<Integer>> entry : index.entrySet()) {
-            if (entry.getValue().size() > 3) {
-                System.out.println(entry.getKey() + ": " + entry.getValue().toString().replaceAll("[\\[\\]]", ""));
-            }
-        }
+    public Format getFormat() {
+        return formatter.getFormat();
     }
+
+    public int getFixColumnWidth() {
+        return formatter.getFixColumnWidth();
+    }
+
+//    public void printIndex(HashMap<String, HashSet<Integer>> index) {
+//        for (Map.Entry<String, HashSet<Integer>> entry : index.entrySet()) {
+//            if (entry.getValue().size() > 3) {
+//                System.out.println(entry.getKey() + ": " + entry.getValue().toString().replaceAll("[\\[\\]]", ""));
+//            }
+//        }
+//    }
 }
