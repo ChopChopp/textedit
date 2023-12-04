@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Document holds the state of text the user writes.
@@ -37,10 +37,6 @@ public class Document {
         formatter.setFormat(Format.RAW);
     }
 
-//    public HashMap<Paragraph, int[]> getIndex() {
-//        return null;
-//    }
-
     public void replace(String searchText, String targetText, int index) {
         Paragraph paragraph;
 
@@ -77,11 +73,11 @@ public class Document {
         return formatter.getFixColumnWidth();
     }
 
-//    public void printIndex(HashMap<String, HashSet<Integer>> index) {
-//        for (Map.Entry<String, HashSet<Integer>> entry : index.entrySet()) {
-//            if (entry.getValue().size() > 3) {
-//                System.out.println(entry.getKey() + ": " + entry.getValue().toString().replaceAll("[\\[\\]]", ""));
-//            }
-//        }
-//    }
+    public void printIndex(HashMap<String, HashSet<Integer>> index) {
+        for (Map.Entry<String, HashSet<Integer>> entry: index.entrySet()) {
+            if (entry.getValue().size() > 3) {
+                System.out.println(entry.getKey() + ": " + entry.getValue().toString().replaceAll("[\\[\\]]", ""));
+            }
+        }
+    }
 }

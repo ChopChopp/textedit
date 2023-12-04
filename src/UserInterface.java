@@ -1,6 +1,5 @@
 /*
  * Manages the user interface for the text editor.
- *
  */
 
 import java.util.ArrayList;
@@ -9,19 +8,35 @@ import java.util.Scanner;
 public class UserInterface {
     private static final Scanner reader = new Scanner(System.in);
 
-    public void welcome() {
-        System.out.println("Welcome to the text editor!");
-    }
-
+    /**
+     * Return user input (command) in uppercase.
+     *
+     * @return The command
+     */
     public String getCommand() {
         System.out.print("\n> ");
         return reader.nextLine().toUpperCase();
     }
 
+    /**
+     * Return the text which has to be replaced.
+     *
+     * @return The replacement text
+     */
     public String getInput() {
         return reader.nextLine();
     }
 
+    /**
+     * Prints a welcome message to the console.
+     */
+    public void welcome() {
+        System.out.println("Welcome to the text editor!");
+    }
+
+    /**
+     * Print available commands
+     */
     public void prompt() {
         System.out.println("'ADD [n] <text>'      Adds a paragraph at given index");
         System.out.println("'DEL [n]'             Deletes a paragraph at given index ");
@@ -35,74 +50,108 @@ public class UserInterface {
         System.out.println("'HELP'                Shows this help message");
     }
 
+    /**
+     * ask the user for paragraph text
+     */
     public void promptAdd() {
         System.out.println("Enter paragraph text:");
     }
 
+    /**
+     * Inform that user hasn't entered any text.
+     */
     public void documentEmpty() {
         System.err.println("Document is empty.");
     }
 
+    /**
+     * User has entered an invalid command.
+     */
     public void invalidCommand() {
         System.err.println("Invalid command.");
     }
 
+    /**
+     * User has entered an invalid command index.
+     */
     public void invalidCommandIndex() {
         System.err.println("Invalid command index.");
     }
 
+    /**
+     * User has entered an invalid document index.
+     */
     public void invalidDocumentIndex() {
         System.err.println("Invalid document index. Index does not exist.");
     }
 
+    /**
+     * Print output in a format with preceding paragraph number.
+     */
     public void printDocumentRaw(ArrayList<Paragraph> paragraphs) {
         for (int i = 0; i < paragraphs.size(); i++) {
             System.out.println("<" + (i + 1) + ">: " + paragraphs.get(i).getText());
         }
     }
 
+    /**
+     * Set the output format to an output with a maximum column width of b characters. The line breaking behavior is as follows:
+     * -Line breaks are allowed only after a space.
+     * -The space after which the line is broken does not count towards the line length. It is still output on the current line,
+     * even if it may not fit.
+     * -If no break point is found within the column width after a break, a line break may be made after the column width.
+     */
     public void printDocumentFix(ArrayList<Paragraph> paragraphs, int columnWidth) {
-        for (Paragraph paragraph : paragraphs) {
-            String text = paragraph.getText();
-            String[] line = text.split("\\s+");
-            int currentLineLength = 0;
-
-            for (String word : line) {
-                // Check if word fits into current line. If not add a line break.
-                if (currentLineLength + word.length() > columnWidth) {
-                    System.out.println(); // Zeilenumbruch
-                    currentLineLength = 0; // Zurücksetzen der Länge für die neue Zeile
-                }
-
-                // Adding word to current line.
-                System.out.print(word);
-                currentLineLength += word.length();
-
-                // Add whitespace if there is space left after adding the word,
-                // and if it is not the last word in the line.
-                if (currentLineLength < columnWidth) {
-                    System.out.print(" ");
-                    currentLineLength++; // Add whitespace to line length calculation.
-                }
-            }
-
-            // Add line break after each paragraph.
-            System.out.println();
+        for (Paragraph paragraph: paragraphs) {
+            String formattedParagraph = formatParagraphFix(paragraph.getText(), columnWidth);
+            System.out.println(formattedParagraph);
         }
-
     }
 
+    /**
+     * Handles the formatting of each paragraph into lines of a specified maximum length
+     *
+     * @param text        The text to be formatted
+     * @param columnWidth The maximum column width
+     * @return The formatted text
+     */
+    private String formatParagraphFix(String text, int columnWidth) {
+        String[] words = text.split("\\s+");
+        StringBuilder formattedText = new StringBuilder();
+        int currentLineLength = 0;
+        for (String word: words) {
+            if (currentLineLength + word.length() > columnWidth) {
+                formattedText.append('\n');
+                currentLineLength = 0;
+            }
+            formattedText.append(word);
+            currentLineLength += word.length();
+            if (currentLineLength < columnWidth) {
+                formattedText.append(' ');
+                currentLineLength++;
+            }
+        }
+        return formattedText.toString();
+    }
+
+    /**
+     * Request user to enter a search text.
+     */
     public void promptSearchText() {
         System.out.println("Enter search text:");
     }
 
+    /**
+     * Request user to enter a replacement text.
+     */
     public void promptReplaceText() {
         System.out.println("Enter replacement text:");
     }
 
+    /**
+     * Inform the user that the search text was not found in the document.
+     */
     public void invalidSearchText() {
         System.err.println("Search text not found in target paragraph.");
     }
-
-
 }

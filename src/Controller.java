@@ -1,3 +1,8 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+
 /**
  * This application provides a text editor to write a document stored in memory.
  * Controller initiates the application and handles propagation of commands.
@@ -162,46 +167,45 @@ public class Controller {
     }
 
     public void index() {
-
+        HashMap<String, HashSet<Integer>> index = generateIndex();
+        document.printIndex(index);
     }
 
-//    public void index() {
-//        HashMap<String, HashSet<Integer>> index = generateIndex();
-//        document.printIndex(index);
-//    }
-//
-//    public HashMap<String, HashSet<Integer>> generateIndex() {
-//        HashMap<String, HashSet<Integer>> index = new HashMap<>();
-//        HashMap<String, Integer> wordCount = countWords();
-//        ArrayList<Paragraph> paragraphs = document.getParagraphs();
-//        for (int i = 0; i < paragraphs.size(); i++) {
-//            String[] words = paragraphs.get(i).getText().split("\\s+");
-//            for (String word : words) {
-//                if (Character.isUpperCase(word.charAt(0)) && wordCount.get(word) > 3) {
-//                    index.putIfAbsent(word, new HashSet<>());
-//                    index.get(word).add(i + 1);
-//                }
-//            }
-//        }
-//        return index;
-//    }
+    /*
+     * Create an index of all words that start with a capital letter and occur more than three times
+     * @return HashMap<String, HashSet<Integer>> The index of words and their paragraph numbers
+     */
+    public HashMap<String, HashSet<Integer>> generateIndex() {
+        HashMap<String, HashSet<Integer>> index = new HashMap<>();
+        HashMap<String, Integer> wordCount = countWords();
+
+        for (int i = 0; i < document.getParagraphs().size(); i++) {
+            String[] words = document.getParagraphs().get(i).getText().split("\\s+");
+            for (String word: words) {
+                if (Character.isUpperCase(word.charAt(0)) && wordCount.get(word) > 3) {
+                    index.putIfAbsent(word, new HashSet<>());
+                    index.get(word).add(i + 1);
+                }
+            }
+        }
+        return index;
+    }
 
     /*
-     *  Hilfsfunktion, die die Häufigkeit jedes Wortes in den Absätzen zählt, und
-     *  diese Funktion dann in der generateIndex-Methode verwenden, um zu überprüfen,
-     *  ob ein Wort mehr als dreimal vorkommt, bevor es zum Index hinzugefügt wird
+     * Helper function that counts the frequency of each word in the whole document.
+     * Used in generateIndex() to check if a word occurs more than three times before adding it to the index.
+     * @return HashMap<String, Integer> The word and its frequency
      */
-//    private HashMap<String, Integer> countWords() {
-//        HashMap<String, Integer> wordCount = new HashMap<>();
-//        ArrayList<Paragraph> paragraphs = document.getParagraphs();
-//        for (Paragraph paragraph : paragraphs) {
-//            String[] words = paragraph.getText().split("\\s+");
-//            for (String word : words) {
-//                if (Character.isUpperCase(word.charAt(0))) {
-//                    wordCount.put(word, wordCount.getOrDefault(word, 0) + 1);
-//                }
-//            }
-//        }
-//        return wordCount;
-//    }
+    private HashMap<String, Integer> countWords() {
+        HashMap<String, Integer> wordCount = new HashMap<>();
+        for (Paragraph paragraph: document.getParagraphs()) {
+            String[] words = paragraph.getText().split("\\s+");
+            for (String word: words) {
+                if (Character.isUpperCase(word.charAt(0))) {
+                    wordCount.put(word, wordCount.getOrDefault(word, 0) + 1);
+                }
+            }
+        }
+        return wordCount;
+    }
 }
