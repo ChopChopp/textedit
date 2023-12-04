@@ -1,7 +1,5 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
+import java.util.logging.Handler;
 
 /**
  * This application provides a text editor to write a document stored in memory.
@@ -17,18 +15,22 @@ public class Controller {
         userInterface = new UserInterface();
     }
 
+    /*
+     * Initialize the application and handle propagation of commands
+     */
     public void init() {
         userInterface.welcome();
         userInterface.prompt();
         while (true) {
             String userInput = userInterface.getCommand();
+            TextEditor.logger.info("Received user input: " + userInput);
             Command command = getCommand(userInput);
             Integer index = getIndex(userInput);
 
             if (command == null || index == null) continue;
 
             switch (command) {
-                case EXIT -> System.exit(0);
+                case EXIT -> exit();
                 case ADD -> add(index);
                 case DEL -> delete(index);
                 case FORMAT_FIX -> formatFix(index);
@@ -43,18 +45,46 @@ public class Controller {
         }
     }
 
+    /*
+     * Close the logger and exit the program
+     */
+    private void exit() {
+        TextEditor.logger.info("Exiting application");
+        userInterface.exit();
+        for (Handler handler: TextEditor.logger.getHandlers()) {
+            handler.close();
+        }
+        System.exit(0);
+    }
+
+    /*
+     * Get the command from the user entered input
+     * Concatenates the command with _ if the command is two words (e.g. FORMAT FIX)
+     * @param userInput The user input
+     */
     private Command getCommand(String userInput) {
         String[] parts = userInput.split("\\s+");
-        String commandString;
 
-        if (parts.length > 1 && !isNumeric(parts[1])) {
-            commandString = parts[0] + "_" + parts[1];
-        } else {
-            commandString = parts[0];
+        StringBuilder commandString = new StringBuilder();
+
+//        if (parts.size() > 1) {
+        for (String part: parts) {
+            if (!isNumeric(part)) {
+                commandString.append(part.toUpperCase()).append("_");
+            }
         }
 
+        if (!commandString.isEmpty()) {
+            TextEditor.logger.info("Removing trailing underscore from command");
+            commandString.setLength(commandString.length() - 1);
+        }
+
+//        } else
+//            commandString.append(parts[0]);
+        TextEditor.logger.info("Received command: " + commandString);
+
         try {
-            return Command.valueOf(commandString.toUpperCase());
+            return Command.valueOf(commandString.toString().toUpperCase());
         } catch (IllegalArgumentException e) {
             userInterface.invalidCommand();
             return null;
@@ -63,16 +93,16 @@ public class Controller {
 
     /*
      * Get the index from the command string
+     * If the command is two words (e.g. FORMAT FIX), the index is the last word
      * Returns -1 if no index is provided by user
-     * Returns null if the index is not numeric
-     * @param commandString The command string
+     * Returns null if the index is invalid (not numeric, 0, or negative)
+     * @param userInput The user input
      */
     private Integer getIndex(String userInput) {
         String[] parts = userInput.split("\\s+");
 
         if (parts.length == 1) {
             return -1;
-
         } else if (parts.length == 2) {
             if (isNumeric(parts[1])) return Integer.parseInt(parts[1]);
             else return -1;
@@ -82,7 +112,6 @@ public class Controller {
             userInterface.invalidCommandIndex();
             return null;
         }
-
     }
 
     /*
@@ -94,6 +123,7 @@ public class Controller {
     }
 
     public void add(int index) {
+        TextEditor.logger.info("Adding paragraph at index " + index);
         if (index > document.getParagraphs().size()) {
             userInterface.invalidDocumentIndex();
             return;

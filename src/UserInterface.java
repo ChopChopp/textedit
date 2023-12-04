@@ -154,4 +154,8 @@ public class UserInterface {
     public void invalidSearchText() {
         System.err.println("Search text not found in target paragraph.");
     }
+
+    public void exit() {
+        System.out.println("Exiting program...");
+    }
 }
