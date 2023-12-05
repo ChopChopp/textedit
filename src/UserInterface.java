@@ -30,14 +30,14 @@ public class UserInterface {
     /**
      * Prints a welcome message to the console.
      */
-    public void welcome() {
+    public void printWelcome() {
         System.out.println("Welcome to the text editor!");
     }
 
     /**
      * Print available commands
      */
-    public void prompt() {
+    public void printHelp() {
         System.out.println("'ADD [n] <text>'      Adds a paragraph at given index");
         System.out.println("'DEL [n]'             Deletes a paragraph at given index ");
         System.out.println("'DUMMY [n]'           Adds a dummy paragraph");

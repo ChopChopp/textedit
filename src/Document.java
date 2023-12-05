@@ -80,4 +80,8 @@ public class Document {
             }
         }
     }
+
+    public int getSize() {
+        return paragraphs.size();
+    }
 }

@@ -10,24 +10,36 @@ public class Controller {
     private final Document document;
     private final UserInterface userInterface;
 
+    /*
+     * default constructor
+     */
     public Controller() {
         document = new Document();
         userInterface = new UserInterface();
     }
 
     /*
+     * constructor with parameters, for testing
+     */
+    public Controller(Document document, UserInterface userInterface) {
+        this.document = document;
+        this.userInterface = userInterface;
+    }
+
+    /*
      * Initialize the application and handle propagation of commands
      */
     public void init() {
-        userInterface.welcome();
-        userInterface.prompt();
+        userInterface.printWelcome();
+        userInterface.printHelp();
         while (true) {
             String userInput = userInterface.getCommand();
             TextEditor.logger.info("Received user input: " + userInput);
-            Command command = getCommand(userInput);
-            Integer index = getIndex(userInput);
 
-            if (command == null || index == null) continue;
+            Command command = getCommand(userInput);
+            if (command == null) continue;
+
+            Integer index = getIndex(userInput);
 
             switch (command) {
                 case EXIT -> exit();
@@ -39,7 +51,7 @@ public class Controller {
                 case PRINT -> print();
                 case REPLACE -> replace(index);
                 case DUMMY -> dummy(index);
-                case HELP -> userInterface.prompt();
+                case HELP -> userInterface.printHelp();
                 default -> userInterface.invalidCommand();
             }
         }
@@ -48,7 +60,7 @@ public class Controller {
     /*
      * Close the logger and exit the program
      */
-    private void exit() {
+    public void exit() {
         TextEditor.logger.info("Exiting application");
         userInterface.exit();
         for (Handler handler: TextEditor.logger.getHandlers()) {
@@ -62,69 +74,64 @@ public class Controller {
      * Concatenates the command with _ if the command is two words (e.g. FORMAT FIX)
      * @param userInput The user input
      */
-    private Command getCommand(String userInput) {
-        String[] parts = userInput.split("\\s+");
-
+    public Command getCommand(String userInput) {
+        String[] userInputParts = userInput.split("\\s+");
         StringBuilder commandString = new StringBuilder();
 
-//        if (parts.size() > 1) {
-        for (String part: parts) {
+        for (String part: userInputParts) {
             if (!isNumeric(part)) {
                 commandString.append(part.toUpperCase()).append("_");
             }
         }
 
         if (!commandString.isEmpty()) {
-            TextEditor.logger.info("Removing trailing underscore from command");
+            TextEditor.logger.fine("Removing trailing underscore from command");
             commandString.setLength(commandString.length() - 1);
         }
 
-//        } else
-//            commandString.append(parts[0]);
-        TextEditor.logger.info("Received command: " + commandString);
-
         try {
+            TextEditor.logger.info("Parsed command: " + commandString.toString().toUpperCase());
             return Command.valueOf(commandString.toString().toUpperCase());
         } catch (IllegalArgumentException e) {
+            TextEditor.logger.warning("Invalid command");
             userInterface.invalidCommand();
             return null;
         }
     }
 
     /*
-     * Get the index from the command string
-     * If the command is two words (e.g. FORMAT FIX), the index is the last word
+     * Get the index from the user entered input
      * Returns -1 if no index is provided by user
-     * Returns null if the index is invalid (not numeric, 0, or negative)
      * @param userInput The user input
      */
-    private Integer getIndex(String userInput) {
+    public Integer getIndex(String userInput) {
         String[] parts = userInput.split("\\s+");
 
-        if (parts.length == 1) {
-            return -1;
-        } else if (parts.length == 2) {
-            if (isNumeric(parts[1])) return Integer.parseInt(parts[1]);
-            else return -1;
-        } else if (parts.length > 2 && isNumeric(parts[parts.length - 1])) {
+        if (isNumeric(parts[parts.length - 1])) {
+            TextEditor.logger.info("Returning index " + parts[parts.length - 1]);
             return Integer.parseInt(parts[parts.length - 1]);
         } else {
-            userInterface.invalidCommandIndex();
-            return null;
+            TextEditor.logger.info("No index provided. Returning -1");
+            return -1;
         }
+
     }
 
     /*
-     * Check if the string is numeric[0-9] via regex and disclose 0, as array needs to start at 1
+     * Check if the string is numeric[1-9] via regex. Disclosing 0 as array needs to start at 1.
      * @param str The string to check
      */
     private boolean isNumeric(String str) {
-        return !str.equals("0") && str.matches("\\d+");
+        return !str.equals("0") && str.matches("[0-9]+");
     }
 
+    /*
+     * Add a paragraph to the document
+     * @param index The index of the paragraph to add the new paragraph after
+     */
     public void add(int index) {
-        TextEditor.logger.info("Adding paragraph at index " + index);
-        if (index > document.getParagraphs().size()) {
+        TextEditor.logger.info("Executing command ADD");
+        if (index > document.getSize()) {
             userInterface.invalidDocumentIndex();
             return;
         }
@@ -132,7 +139,12 @@ public class Controller {
         document.addParagraph(userInterface.getInput(), index - 1);
     }
 
+    /*
+     * Delete a paragraph from the document
+     * @param index The index of the paragraph to delete
+     */
     public void delete(int index) {
+        TextEditor.logger.info("Executing command DEL");
         if (document.getParagraphs().isEmpty())
             userInterface.documentEmpty();
         else if (index > document.getParagraphs().size())
@@ -141,7 +153,12 @@ public class Controller {
             document.deleteParagraph(index - 1);
     }
 
-    private void dummy(int index) {
+    /*
+     * Add a dummy paragraph to the document
+     * @param index The index of the paragraph to add the dummy paragraph after
+     */
+    public void dummy(int index) {
+        TextEditor.logger.info("Executing command DUMMY");
         if (index > document.getParagraphs().size()) {
             userInterface.invalidDocumentIndex();
             return;
@@ -149,7 +166,11 @@ public class Controller {
         document.addDummy(index - 1);
     }
 
-    private void print() {
+    /*
+     * Print the entire document
+     */
+    public void print() {
+        TextEditor.logger.info("Executing command PRINT");
         if (document.getParagraphs().isEmpty()) {
             userInterface.documentEmpty();
             return;
@@ -163,7 +184,12 @@ public class Controller {
         }
     }
 
+    /*
+     * Replace the target string with a replacement string
+     * @param index The index of the paragraph to replace the string in
+     */
     public void replace(int index) {
+        TextEditor.logger.info("Executing command REPLACE");
         if (document.getParagraphs().isEmpty())
             userInterface.documentEmpty();
         else if (index > document.getParagraphs().size())
@@ -184,7 +210,12 @@ public class Controller {
         }
     }
 
+    /*
+     * Set the output format with a maximum column width
+     * @param columnWidth The maximum column width
+     */
     public void formatFix(int columnWidth) {
+        TextEditor.logger.info("Executing command FORMAT FIX");
         if (columnWidth < 1) {
             userInterface.invalidCommandIndex();
             return;
@@ -192,11 +223,19 @@ public class Controller {
         document.setFormatFix(columnWidth);
     }
 
+    /*
+     * Set the output format with preceding paragraph number
+     */
     public void formatRaw() {
+        TextEditor.logger.info("Executing command FORMAT RAW");
         document.setFormatRaw();
     }
 
+    /*
+     * Print an index of all words that start with a capital letter and occur more than three times
+     */
     public void index() {
+        TextEditor.logger.info("Executing command INDEX");
         HashMap<String, HashSet<Integer>> index = generateIndex();
         document.printIndex(index);
     }
